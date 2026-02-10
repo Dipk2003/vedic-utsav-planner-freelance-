@@ -13,8 +13,8 @@ import { useSeo } from '@/lib/seo';
 export default function Homepage() {
   useSeo(
     'homepage',
-    'VedicUtsav | Premium Event Planning',
-    'Plan weddings, corporate events, birthdays, and social gatherings in Delhi, Greater Noida, and Varanasi.'
+    'Event Planner in Delhi, Greater Noida & Varanasi | VedicUtsav',
+    'VedicUtsav is an event planner in Delhi, Greater Noida, and Varanasi for weddings, corporate events, birthdays, and social celebrations.'
   );
   useEffect(() => {
     const reveals = document.querySelectorAll('.reveal')

@@ -158,8 +158,8 @@ const galleryItems: GalleryItem[] = [
 export default function CorporateEventsPage() {
   useSeo(
     'corporate-events',
-    'Corporate Event Management | VedicUtsav',
-    'Corporate conferences, product launches, and team events with seamless execution.'
+    'Corporate Event Planner in Delhi, Greater Noida & Varanasi | VedicUtsav',
+    'Corporate event planner in Delhi, Greater Noida, and Varanasi for conferences, product launches, offsites, and hybrid events.'
   );
   useEffect(() => {
     const reveals = document.querySelectorAll('.reveal');
@@ -211,7 +211,8 @@ export default function CorporateEventsPage() {
               <span className="text-primary">Corporate Presence</span>
             </h1>
             <p className="text-white/80 text-lg md:text-xl font-light max-w-2xl font-geist">
-              From conferences to product launches, we create professional events that leave lasting impressions
+              From conferences to product launches, we create professional events that leave lasting impressions.
+              Corporate event planner in Delhi, Greater Noida, and Varanasi for every scale.
             </p>
           </div>
         </div>

@@ -94,6 +94,9 @@ export default function HeroSection() {
           <p className="text-white/80 text-lg md:text-xl font-light max-w-2xl leading-relaxed font-geist mb-10 animate-enter delay-300">
             {heroSubtitle}
           </p>
+          <p className="text-white/70 text-sm md:text-base font-geist mb-8 animate-enter delay-350">
+            Event planner in Delhi, Greater Noida, and Varanasi for weddings, corporate events, birthdays, and social gatherings.
+          </p>
 
           <div className="flex flex-col md:flex-row items-start md:items-center gap-4 animate-enter delay-500">
             <button
