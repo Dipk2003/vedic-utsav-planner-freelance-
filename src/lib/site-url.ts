@@ -1,19 +1,5 @@
-const FALLBACK_BASE_URL = 'http://localhost:3000';
+const HARD_CODED_BASE_URL = 'https://vaidikutsav.com';
 
 export function getBaseUrl(): string {
-  const envUrl =
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    process.env.SITE_URL ||
-    process.env.VERCEL_URL;
-
-  if (!envUrl) {
-    return FALLBACK_BASE_URL;
-  }
-
-  const normalized = envUrl.replace(/\/+$/, '');
-  if (normalized.startsWith('http://') || normalized.startsWith('https://')) {
-    return normalized;
-  }
-
-  return `https://${normalized}`;
+  return HARD_CODED_BASE_URL;
 }
