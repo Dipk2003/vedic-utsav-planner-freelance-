@@ -20,7 +20,6 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const type = body?.type;
-    const language = body?.language === 'hi' ? 'hi' : 'en';
 
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
@@ -38,9 +37,7 @@ export async function POST(request: Request) {
       prompt = [
         'You are a senior event content writer for VedicUtsav.',
         'Write a blog post for our event planning company.',
-        language === 'hi'
-          ? 'Use formal, polite Hinglish (Romanized Hindi).'
-          : 'Use formal, professional English.',
+        'Use formal, professional English.',
         'Return ONLY valid JSON with keys: title, excerpt, content, seo_title, seo_description.',
         'Content should be 500-700 words, include headings and bullet points, and end with a clear call-to-action.',
         `Topic: ${base}`
@@ -53,9 +50,7 @@ export async function POST(request: Request) {
       }
       prompt = [
         'You are an SEO specialist for VedicUtsav.',
-        language === 'hi'
-          ? 'Use formal, polite Hinglish (Romanized Hindi).'
-          : 'Use formal, professional English.',
+        'Use formal, professional English.',
         'Return ONLY valid JSON with keys: seo_title and seo_description.',
         'SEO title 50-60 chars, description 140-160 chars.',
         `Title: ${title}`,
@@ -67,10 +62,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'Text is required' }, { status: 400 });
       }
       prompt = [
-        'Translate the following text.',
-        language === 'hi'
-          ? 'Translate into formal, polite Hinglish (Romanized Hindi).'
-          : 'Translate into formal, professional English.',
+        'Translate the following text into formal, professional English.',
         'Return ONLY valid JSON with key: translation.',
         `Text: ${text}`
       ].join(' ');
@@ -78,20 +70,28 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid type' }, { status: 400 });
     }
 
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ role: 'user', parts: [{ text: prompt }] }],
-          generationConfig: {
-            temperature: 0.6,
-            maxOutputTokens: type === 'blog' ? 900 : 300
-          }
-        })
-      }
-    );
+    const model = process.env.GEMINI_MODEL || 'gemini-1.5-flash-latest';
+    const fallbackModel = process.env.GEMINI_FALLBACK_MODEL || 'gemini-1.5-pro-latest';
+    const makeRequest = (modelName: string) =>
+      fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ role: 'user', parts: [{ text: prompt }] }],
+            generationConfig: {
+              temperature: 0.6,
+              maxOutputTokens: type === 'blog' ? 900 : 300
+            }
+          })
+        }
+      );
+
+    let response = await makeRequest(model);
+    if (!response.ok && response.status === 404 && fallbackModel && fallbackModel !== model) {
+      response = await makeRequest(fallbackModel);
+    }
 
     if (!response.ok) {
       const errorText = await response.text();

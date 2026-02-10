@@ -1,6 +1,8 @@
 'use client';
 import { useState } from 'react';
 import Icon from '@/components/ui/AppIcon';
+import { useLanguage } from '@/lib/i18n';
+import { useSiteContent } from '@/lib/site-content';
 
 interface FormData {
   name: string
@@ -14,6 +16,8 @@ interface FormData {
 }
 
 export default function ContactFormSection() {
+  const { t } = useLanguage();
+  const content = useSiteContent(['contact_title', 'contact_subtitle', 'contact_tag']);
   const [step, setStep] = useState(1)
   const [formData, setFormData] = useState<FormData>({
     name: '',
@@ -81,6 +85,12 @@ export default function ContactFormSection() {
   }
 
   const progressPercentage = (step / 3) * 100
+  const tag = content.contact_tag || t('contact.tag', 'Get Started');
+  const title = content.contact_title || t('contact.title', 'Let\'s Plan Your|Perfect Event');
+  const titleParts = title.split('|');
+  const subtitle =
+    content.contact_subtitle ||
+    t('contact.subtitle', 'Free consultation, no obligation. Share your vision and we\'ll make it happen.');
 
   return (
     <section id="contact-form" className="w-full px-8 md:px-16 py-20 lg:py-28 bg-background">
@@ -88,14 +98,14 @@ export default function ContactFormSection() {
         {/* Section Header */}
         <div className="text-center mb-12 reveal-hidden reveal">
           <span className="inline-block px-4 py-1.5 rounded-full border border-border text-xs font-semibold text-muted-foreground font-geist tracking-wide uppercase mb-6">
-            Get Started
+            {tag}
           </span>
           <h2 className="text-4xl lg:text-5xl font-medium tracking-tight font-jakarta leading-[1.1] mb-6 text-foreground">
-            Let's Plan Your <br />
-            <span className="text-primary">Perfect Event</span>
+            {titleParts[0]} <br />
+            <span className="text-primary">{titleParts[1] || ''}</span>
           </h2>
           <p className="text-muted-foreground text-lg font-light max-w-2xl mx-auto font-geist">
-            Free consultation, no obligation. Share your vision and we'll make it happen.
+            {subtitle}
           </p>
         </div>
 
@@ -104,7 +114,7 @@ export default function ContactFormSection() {
           {/* Progress Bar */}
           <div className="mb-8">
             <div className="flex justify-between mb-2">
-              <span className="text-sm font-medium text-foreground font-geist">Step {step} of 3</span>
+              <span className="text-sm font-medium text-foreground font-geist">{t('contact.step', 'Step')} {step} {t('contact.of', 'of')} 3</span>
               <span className="text-sm font-medium text-primary font-geist">{Math.round(progressPercentage)}%</span>
             </div>
             <div className="h-2 bg-muted rounded-full overflow-hidden">
@@ -121,7 +131,7 @@ export default function ContactFormSection() {
               <div className="space-y-6 animate-fade">
                 <div>
                   <label htmlFor="name" className="block text-sm font-medium text-foreground font-geist mb-2">
-                    Your Name *
+                    {t('contact.name', 'Your Name')} *
                   </label>
                   <input
                     type="text"
@@ -131,14 +141,14 @@ export default function ContactFormSection() {
                     onChange={handleInputChange}
                     required
                     className="w-full px-4 py-3 rounded-xl bg-card border border-border text-foreground font-geist input-focus"
-                    placeholder="Enter your full name"
+                    placeholder={t('contact.name_placeholder', 'Enter your full name')}
                   />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label htmlFor="phone" className="block text-sm font-medium text-foreground font-geist mb-2">
-                      Phone Number *
+                      {t('contact.phone_label', 'Phone Number')} *
                     </label>
                     <input
                       type="tel"
@@ -148,13 +158,13 @@ export default function ContactFormSection() {
                       onChange={handleInputChange}
                       required
                       className="w-full px-4 py-3 rounded-xl bg-card border border-border text-foreground font-geist input-focus"
-                      placeholder="+91 XXXXX XXXXX"
+                      placeholder={t('contact.phone_placeholder', '+91 XXXXX XXXXX')}
                     />
                   </div>
 
                   <div>
                     <label htmlFor="email" className="block text-sm font-medium text-foreground font-geist mb-2">
-                      Email Address *
+                      {t('contact.email_label', 'Email Address')} *
                     </label>
                     <input
                       type="email"
@@ -176,7 +186,7 @@ export default function ContactFormSection() {
               <div className="space-y-6 animate-fade">
                 <div>
                   <label htmlFor="eventType" className="block text-sm font-medium text-foreground font-geist mb-2">
-                    Event Type *
+                    {t('contact.event_type', 'Event Type')} *
                   </label>
                   <select
                     id="eventType"
@@ -186,20 +196,20 @@ export default function ContactFormSection() {
                     required
                     className="w-full px-4 py-3 rounded-xl bg-card border border-border text-foreground font-geist input-focus"
                   >
-                    <option value="">Select event type</option>
-                    <option value="wedding">Wedding</option>
-                    <option value="corporate">Corporate Event</option>
-                    <option value="birthday">Birthday Party</option>
-                    <option value="kitty">Kitty Party</option>
-                    <option value="anniversary">Anniversary</option>
-                    <option value="other">Other</option>
+                    <option value="">{t('contact.event_select', 'Select event type')}</option>
+                    <option value="wedding">{t('contact.event_wedding', 'Wedding')}</option>
+                    <option value="corporate">{t('contact.event_corporate', 'Corporate Event')}</option>
+                    <option value="birthday">{t('contact.event_birthday', 'Birthday Party')}</option>
+                    <option value="kitty">{t('contact.event_kitty', 'Kitty Party')}</option>
+                    <option value="anniversary">{t('contact.event_anniversary', 'Anniversary')}</option>
+                    <option value="other">{t('contact.event_other', 'Other')}</option>
                   </select>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label htmlFor="eventDate" className="block text-sm font-medium text-foreground font-geist mb-2">
-                      Tentative Event Date
+                      {t('contact.event_date', 'Tentative Event Date')}
                     </label>
                     <input
                       type="date"
@@ -213,7 +223,7 @@ export default function ContactFormSection() {
 
                   <div>
                     <label htmlFor="guestCount" className="block text-sm font-medium text-foreground font-geist mb-2">
-                      Expected Guest Count
+                      {t('contact.guest_count', 'Expected Guest Count')}
                     </label>
                     <select
                       id="guestCount"
@@ -222,19 +232,19 @@ export default function ContactFormSection() {
                       onChange={handleInputChange}
                       className="w-full px-4 py-3 rounded-xl bg-card border border-border text-foreground font-geist input-focus"
                     >
-                      <option value="">Select range</option>
-                      <option value="0-50">0-50 guests</option>
-                      <option value="50-100">50-100 guests</option>
-                      <option value="100-200">100-200 guests</option>
-                      <option value="200-500">200-500 guests</option>
-                      <option value="500+">500+ guests</option>
+                      <option value="">{t('contact.guest_select', 'Select range')}</option>
+                      <option value="0-50">{t('contact.guest_0_50', '0-50 guests')}</option>
+                      <option value="50-100">{t('contact.guest_50_100', '50-100 guests')}</option>
+                      <option value="100-200">{t('contact.guest_100_200', '100-200 guests')}</option>
+                      <option value="200-500">{t('contact.guest_200_500', '200-500 guests')}</option>
+                      <option value="500+">{t('contact.guest_500', '500+ guests')}</option>
                     </select>
                   </div>
                 </div>
 
                 <div>
                   <label htmlFor="city" className="block text-sm font-medium text-foreground font-geist mb-2">
-                    City *
+                    {t('contact.city', 'City')} *
                   </label>
                   <input
                     type="text"
@@ -244,7 +254,7 @@ export default function ContactFormSection() {
                     onChange={handleInputChange}
                     required
                     className="w-full px-4 py-3 rounded-xl bg-card border border-border text-foreground font-geist input-focus"
-                    placeholder="e.g., Delhi, Greater Noida, Varanasi"
+                    placeholder={t('contact.city_placeholder', 'e.g., Delhi, Greater Noida, Varanasi')}
                   />
                 </div>
               </div>
@@ -255,7 +265,7 @@ export default function ContactFormSection() {
               <div className="space-y-6 animate-fade">
                 <div>
                   <label htmlFor="message" className="block text-sm font-medium text-foreground font-geist mb-2">
-                    Tell us about your vision
+                    {t('contact.vision', 'Tell us about your vision')}
                   </label>
                   <textarea
                     id="message"
@@ -264,7 +274,7 @@ export default function ContactFormSection() {
                     onChange={handleInputChange}
                     rows={6}
                     className="w-full px-4 py-3 rounded-xl bg-card border border-border text-foreground font-geist input-focus resize-none"
-                    placeholder="Share any specific requirements, themes, or ideas you have in mind..."
+                    placeholder={t('contact.vision_placeholder', 'Share any specific requirements, themes, or ideas you have in mind...')}
                   ></textarea>
                 </div>
 
@@ -272,12 +282,12 @@ export default function ContactFormSection() {
                   <div className="flex items-start gap-3">
                     <Icon name="CheckCircleIcon" className="w-5 h-5 text-success shrink-0 mt-0.5" />
                     <div className="text-sm text-foreground font-geist">
-                      <p className="font-semibold mb-1">What happens next?</p>
+                      <p className="font-semibold mb-1">{t('contact.next_title', 'What happens next?')}</p>
                       <ul className="space-y-1 text-muted-foreground">
-                        <li>• We'll call you within 24 hours</li>
-                        <li>• Free consultation to understand your needs</li>
-                        <li>• Custom proposal within 48 hours</li>
-                        <li>• No obligation, completely free</li>
+                        <li>• {t('contact.next_1', 'We will call you within 24 hours')}</li>
+                        <li>• {t('contact.next_2', 'Free consultation to understand your needs')}</li>
+                        <li>• {t('contact.next_3', 'Custom proposal within 48 hours')}</li>
+                        <li>• {t('contact.next_4', 'No obligation, completely free')}</li>
                       </ul>
                     </div>
                   </div>
@@ -298,7 +308,7 @@ export default function ContactFormSection() {
                 }`}
               >
                 <Icon name="ChevronLeftIcon" className="w-4 h-4" />
-                Previous
+                {t('cta.previous', 'Previous')}
               </button>
 
               {step < 3 ? (
@@ -307,7 +317,7 @@ export default function ContactFormSection() {
                   onClick={handleNext}
                   className="flex items-center gap-2 px-8 py-3 rounded-full bg-primary text-primary-foreground font-semibold text-sm hover:bg-primary/90 transition-all cursor-hover btn-hover-lift"
                 >
-                  Next Step
+                  {t('cta.next_step', 'Next Step')}
                   <Icon name="ChevronRightIcon" className="w-4 h-4" />
                 </button>
               ) : (
@@ -319,7 +329,7 @@ export default function ContactFormSection() {
                   }`}
                 >
                   <Icon name="PaperAirplaneIcon" className="w-4 h-4" />
-                  {isSubmitting ? 'Submitting...' : 'Submit Inquiry'}
+                  {isSubmitting ? t('cta.submitting', 'Submitting...') : t('cta.submit_inquiry', 'Submit Inquiry')}
                 </button>
               )}
             </div>
@@ -329,7 +339,7 @@ export default function ContactFormSection() {
         {/* Contact Options */}
         <div className="mt-12 text-center reveal-hidden reveal">
           <p className="text-muted-foreground font-geist mb-6">
-            Prefer to talk directly?
+            {t('contact.prefer_direct', 'Prefer to talk directly?')}
           </p>
           <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
             <a
@@ -337,14 +347,14 @@ export default function ContactFormSection() {
               className="inline-flex items-center gap-2 px-6 py-3 rounded-full border-2 border-border text-foreground font-semibold text-sm hover:bg-card transition-all cursor-hover btn-hover-lift"
             >
               <Icon name="PhoneIcon" className="w-5 h-5" />
-              +91 93691 90920
+              {t('contact.phone', 'Call Us')}: +91 93691 90920
             </a>
             <a
               href="mailto:vaidikutsav03@gmail.com"
               className="inline-flex items-center gap-2 px-6 py-3 rounded-full border-2 border-border text-foreground font-semibold text-sm hover:bg-card transition-all cursor-hover btn-hover-lift"
             >
               <Icon name="EnvelopeIcon" className="w-5 h-5" />
-              vaidikutsav03@gmail.com
+              {t('contact.email', 'Email Us')}: vaidikutsav03@gmail.com
             </a>
             <a
               href="https://wa.me/919369190920"
@@ -353,7 +363,7 @@ export default function ContactFormSection() {
               className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-success text-success-foreground font-semibold text-sm hover:bg-success/90 transition-all cursor-hover btn-hover-lift"
             >
               <Icon name="ChatBubbleLeftRightIcon" className="w-5 h-5" />
-              WhatsApp Us
+              {t('contact.whatsapp', 'WhatsApp Us')}
             </a>
           </div>
         </div>

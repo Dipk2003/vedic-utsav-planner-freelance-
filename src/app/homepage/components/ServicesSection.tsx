@@ -1,12 +1,15 @@
+'use client';
 import Icon from '@/components/ui/AppIcon';
 import Link from 'next/link';
+import { useLanguage } from '@/lib/i18n';
+import { useSiteContent } from '@/lib/site-content';
 
 interface Service {
   id: string
-  title: string
-  description: string
+  title: { en: string; hi: string }
+  description: { en: string; hi: string }
   iconName: string
-  stats: string
+  stats: { en: string; hi: string }
   color: string
   bgColor: string
 }
@@ -14,37 +17,49 @@ interface Service {
 const services: Service[] = [
   {
     id: 'service_corporate',
-    title: 'Corporate Events',
-    description: 'Annual conferences, product launches, team offsites - handled 50+ corporate events in 2025',
+    title: { en: 'Corporate Events', hi: 'Corporate Events' },
+    description: {
+      en: 'Annual conferences, product launches, team offsites - handled 50+ corporate events in 2025',
+      hi: 'Annual conferences, product launches, team offsites - 2025 me 50+ corporate events handle kiye'
+    },
     iconName: 'BriefcaseIcon',
-    stats: '50+ Events',
+    stats: { en: '50+ Events', hi: '50+ Events' },
     color: 'text-secondary',
     bgColor: 'bg-secondary/10'
   },
   {
     id: 'service_wedding',
-    title: 'Wedding Planning',
-    description: 'Traditional ceremonies to destination weddings - expert in Hindu, Sikh, Christian rituals',
+    title: { en: 'Wedding Planning', hi: 'Wedding Planning' },
+    description: {
+      en: 'Traditional ceremonies to destination weddings - expert in Hindu, Sikh, Christian rituals',
+      hi: 'Traditional ceremonies se destination weddings tak - Hindu, Sikh, Christian rituals me expertise'
+    },
     iconName: 'HeartIcon',
-    stats: '200+ Weddings',
+    stats: { en: '200+ Weddings', hi: '200+ Weddings' },
     color: 'text-accent',
     bgColor: 'bg-accent/10'
   },
   {
     id: 'service_birthday',
-    title: 'Birthday Parties',
-    description: 'Themed celebrations for kids and adults - from intimate gatherings to 500+ guest parties',
+    title: { en: 'Birthday Parties', hi: 'Birthday Parties' },
+    description: {
+      en: 'Themed celebrations for kids and adults - from intimate gatherings to 500+ guest parties',
+      hi: 'Kids aur adults ke liye themed celebrations - chhote gatherings se 500+ guest parties tak'
+    },
     iconName: 'CakeIcon',
-    stats: '150+ Parties',
+    stats: { en: '150+ Parties', hi: '150+ Parties' },
     color: 'text-primary',
     bgColor: 'bg-primary/10'
   },
   {
     id: 'service_social',
-    title: 'Kitty Parties & Social Events',
-    description: "Ladies' gatherings, anniversary celebrations, cultural events - elegant and memorable",
+    title: { en: 'Kitty Parties & Social Events', hi: 'Kitty Parties aur Social Events' },
+    description: {
+      en: "Ladies' gatherings, anniversary celebrations, cultural events - elegant and memorable",
+      hi: 'Ladies gatherings, anniversary celebrations, cultural events - elegant aur memorable'
+    },
     iconName: 'SparklesIcon',
-    stats: '100+ Events',
+    stats: { en: '100+ Events', hi: '100+ Events' },
     color: 'text-success',
     bgColor: 'bg-success/10'
   }
@@ -58,21 +73,33 @@ const serviceLinks: Record<string, string> = {
 }
 
 export default function ServicesSection() {
+  const { language, t } = useLanguage();
+  const content = useSiteContent(['services_title', 'services_subtitle', 'services_description', 'services_cta']);
+  const title = content.services_title || t('services.title', 'Our Services');
+  const subtitle = content.services_subtitle || t('services.subtitle', 'Every Occasion|Perfectly Planned.');
+  const subtitleParts = subtitle.split('|');
+  const description =
+    content.services_description ||
+    t(
+      'services.description',
+      'From corporate conferences to intimate celebrations, we handle every detail with expertise and care.'
+    );
+  const ctaText = content.services_cta || t('services.cta', 'Have a unique event in mind? We love challenges.');
   return (
-    <section className="w-full px-8 md:px-16 py-20 lg:py-28 bg-background">
+    <section id="services" className="w-full px-8 md:px-16 py-20 lg:py-28 bg-background">
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
         <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8 reveal-hidden reveal">
           <div className="max-w-3xl">
             <span className="inline-block px-4 py-1.5 rounded-full border border-border text-xs font-semibold text-muted-foreground font-geist tracking-wide uppercase mb-6">
-              Our Services
+              {title}
             </span>
             <h2 className="text-4xl lg:text-5xl font-medium tracking-tight font-jakarta leading-[1.1] mb-6 text-foreground">
-              Every Occasion, <br />
-              <span className="text-primary">Perfectly Planned.</span>
+              {subtitleParts[0]} <br />
+              <span className="text-primary">{subtitleParts[1] || ''}</span>
             </h2>
             <p className="text-muted-foreground text-lg font-light max-w-xl font-geist">
-              From corporate conferences to intimate celebrations, we handle every detail with expertise and care.
+              {description}
             </p>
           </div>
         </div>
@@ -92,18 +119,18 @@ export default function ServicesSection() {
               </div>
               
               <h3 className="text-xl font-semibold font-jakarta text-card-foreground mb-3 group-hover:text-primary transition-colors">
-                {service.title}
+                {service.title[language]}
               </h3>
               
               <p className="text-sm text-muted-foreground font-geist leading-relaxed mb-4">
-                {service.description}
+                {service.description[language]}
               </p>
               
               <div className="flex items-center gap-2 mt-auto pt-4">
                 <span className={`text-xs font-bold ${service.color} font-geist`}>
-                  {service.stats}
+                  {service.stats[language]}
                 </span>
-                <span className="text-xs text-muted-foreground">in 2025</span>
+                <span className="text-xs text-muted-foreground">{t('services.year', 'in 2025')}</span>
               </div>
 
               {/* Hover Effect */}
@@ -115,11 +142,11 @@ export default function ServicesSection() {
         {/* Bottom CTA */}
         <div className="mt-16 text-center reveal-hidden reveal">
           <p className="text-muted-foreground font-geist mb-6">
-            Have a unique event in mind? We love challenges.
+            {ctaText}
           </p>
           <button className="inline-flex items-center gap-2 px-6 py-3 rounded-full border-2 border-primary text-primary font-semibold text-sm hover:bg-primary hover:text-primary-foreground transition-all duration-300 cursor-hover btn-hover-lift">
             <Icon name="ChatBubbleLeftRightIcon" className="w-5 h-5" />
-            Let's Discuss Your Event
+            {t('cta.discuss_event', "Let's Discuss Your Event")}
           </button>
         </div>
       </div>

@@ -2,6 +2,8 @@
 import { useState } from 'react';
 import AppImage from '@/components/ui/AppImage';
 import Icon from '@/components/ui/AppIcon';
+import { useLanguage } from '@/lib/i18n';
+import { useSiteContent } from '@/lib/site-content';
 
 interface Testimonial {
   id: string;
@@ -68,6 +70,17 @@ const testimonials: Testimonial[] = [
 
 
 export default function TestimonialsSection() {
+  const { t } = useLanguage();
+  const content = useSiteContent(['testimonials_title', 'testimonials_subtitle', 'testimonials_description']);
+  const subtitle = content.testimonials_subtitle || t('testimonials.subtitle', 'Client Stories');
+  const title = content.testimonials_title || t('testimonials.title', 'What Our Clients|Say About Us');
+  const titleParts = title.split('|');
+  const description =
+    content.testimonials_description ||
+    t(
+      'testimonials.description',
+      "Real experiences from families and businesses we've served across Delhi, Greater Noida, and Varanasi."
+    );
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const nextTestimonial = () => {
@@ -86,14 +99,14 @@ export default function TestimonialsSection() {
         {/* Section Header */}
         <div className="text-center mb-16 reveal-hidden reveal">
           <span className="inline-block px-4 py-1.5 rounded-full border border-white/20 text-xs font-semibold text-white/70 font-geist tracking-wide uppercase mb-6">
-            Client Stories
+            {subtitle}
           </span>
           <h2 className="text-4xl lg:text-5xl font-medium tracking-tight font-jakarta leading-[1.1] mb-6">
-            What Our Clients <br />
-            <span className="text-primary">Say About Us</span>
+            {titleParts[0]} <br />
+            <span className="text-primary">{titleParts[1] || ''}</span>
           </h2>
           <p className="text-white/70 text-lg font-light max-w-2xl mx-auto font-geist">
-            Real experiences from families and businesses we've served across Delhi, Greater Noida, and Varanasi.
+            {description}
           </p>
         </div>
 
@@ -190,19 +203,19 @@ export default function TestimonialsSection() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-16 reveal-hidden reveal">
           <div className="text-center">
             <p className="text-4xl font-bold text-primary font-jakarta mb-2">500+</p>
-            <p className="text-sm text-white/70 font-geist">Events Executed</p>
+            <p className="text-sm text-white/70 font-geist">{t('stats.events', 'Events Executed')}</p>
           </div>
           <div className="text-center">
             <p className="text-4xl font-bold text-primary font-jakarta mb-2">4.9</p>
-            <p className="text-sm text-white/70 font-geist">Average Rating</p>
+            <p className="text-sm text-white/70 font-geist">{t('stats.rating', 'Average Rating')}</p>
           </div>
           <div className="text-center">
             <p className="text-4xl font-bold text-primary font-jakarta mb-2">98%</p>
-            <p className="text-sm text-white/70 font-geist">Client Satisfaction</p>
+            <p className="text-sm text-white/70 font-geist">{t('stats.satisfaction', 'Client Satisfaction')}</p>
           </div>
           <div className="text-center">
             <p className="text-4xl font-bold text-primary font-jakarta mb-2">3</p>
-            <p className="text-sm text-white/70 font-geist">Cities Covered</p>
+            <p className="text-sm text-white/70 font-geist">{t('stats.cities', 'Cities Covered')}</p>
           </div>
         </div>
       </div>

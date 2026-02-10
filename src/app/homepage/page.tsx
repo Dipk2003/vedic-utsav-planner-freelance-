@@ -1,15 +1,21 @@
 'use client';
 import { useEffect } from 'react';
- import HeroSection from'./components/HeroSection';
- import ServicesSection from'./components/ServicesSection';
- import PortfolioSection from'./components/PortfolioSection';
- import ProcessSection from'./components/ProcessSection';
- import TestimonialsSection from'./components/TestimonialsSection';
- import ContactFormSection from'./components/ContactFormSection';
- import Footer from'@/components/common/Footer';
+import HeroSection from './components/HeroSection';
+import ServicesSection from './components/ServicesSection';
+import PortfolioSection from './components/PortfolioSection';
+import ProcessSection from './components/ProcessSection';
+import TestimonialsSection from './components/TestimonialsSection';
+import ContactFormSection from './components/ContactFormSection';
+import Footer from '@/components/common/Footer';
+import { useSeo } from '@/lib/seo';
 
 
 export default function Homepage() {
+  useSeo(
+    'homepage',
+    'VedicUtsav | Premium Event Planning',
+    'Plan weddings, corporate events, birthdays, and social gatherings in Delhi, Greater Noida, and Varanasi.'
+  );
   useEffect(() => {
     const reveals = document.querySelectorAll('.reveal')
     if (!reveals.length) return

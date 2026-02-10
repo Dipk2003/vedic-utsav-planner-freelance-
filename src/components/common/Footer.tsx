@@ -1,6 +1,9 @@
+'use client';
 import Icon from '@/components/ui/AppIcon';
+import { useLanguage } from '@/lib/i18n';
 
 export default function Footer() {
+  const { t } = useLanguage();
   const currentYear = 2026
 
   return (
@@ -12,23 +15,26 @@ export default function Footer() {
           <div className="text-center md:text-left">
             <h3 className="text-2xl font-bold font-jakarta text-primary mb-2">VedicUtsav</h3>
             <p className="text-sm text-white/70 font-geist">
-              Creating unforgettable moments in Delhi, Greater Noida, and Varanasi
+              {t('footer.tagline', 'Creating unforgettable moments in Delhi, Greater Noida, and Varanasi')}
             </p>
           </div>
 
           {/* Quick Links */}
           <div className="flex flex-wrap justify-center gap-6 text-sm font-geist">
             <a href="/homepage" className="text-white/80 hover:text-primary transition-colors cursor-hover">
-              Home
+              {t('nav.home', 'Home')}
             </a>
             <a href="#services" className="text-white/80 hover:text-primary transition-colors cursor-hover">
-              Services
+              {t('nav.services', 'Services')}
+            </a>
+            <a href="/blog" className="text-white/80 hover:text-primary transition-colors cursor-hover">
+              {t('nav.blog', 'Blog')}
             </a>
             <a href="#portfolio" className="text-white/80 hover:text-primary transition-colors cursor-hover">
-              Portfolio
+              {t('nav.portfolio', 'Portfolio')}
             </a>
             <a href="#contact-form" className="text-white/80 hover:text-primary transition-colors cursor-hover">
-              Contact
+              {t('nav.contact', 'Contact')}
             </a>
           </div>
 

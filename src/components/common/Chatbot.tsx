@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Icon from '@/components/ui/AppIcon';
-import { useLanguage } from '@/lib/i18n';
 
 interface ChatMessage {
   id: string;
@@ -10,27 +9,19 @@ interface ChatMessage {
   text: string;
 }
 
-const suggestionsByLanguage = {
-  en: [
-    'I want to plan a wedding in Delhi',
-    'Corporate event in Greater Noida',
-    'Birthday party in Varanasi'
-  ],
-  hi: [
-    'Delhi me wedding plan karna hai',
-    'Greater Noida me corporate event',
-    'Varanasi me birthday party'
-  ]
-};
+const suggestions = [
+  'I want to plan a wedding in Delhi',
+  'Corporate event in Greater Noida',
+  'Birthday party in Varanasi'
+];
 
 export default function Chatbot() {
-  const { language, t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: 'welcome',
       role: 'assistant',
-      text: 'Namaste. Main VedicUtsav assistant hoon. Hum Delhi, Greater Noida, aur Varanasi me events plan karte hain. Kripya apne event ka type batayein.'
+      text: 'Hello. I am the VedicUtsav assistant. We plan events in Delhi, Greater Noida, and Varanasi. Please share your event type and preferred date.'
     }
   ]);
   const [input, setInput] = useState('');
@@ -70,16 +61,16 @@ export default function Chatbot() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: content,
-          history: historyPayload,
-          language
+          history: historyPayload
         })
       });
 
+      const data = await response.json().catch(() => ({}));
       if (!response.ok) {
-        throw new Error('Failed to fetch response');
+        console.error('Chatbot API error:', data?.error || data);
+        throw new Error('The assistant is temporarily unavailable. Please try again in a moment.');
       }
 
-      const data = await response.json();
       const replyText = data?.reply?.trim();
 
       setMessages((prev) => [
@@ -87,16 +78,18 @@ export default function Chatbot() {
         {
           id: `assistant_${Date.now()}`,
           role: 'assistant',
-          text: replyText || 'Kshama kijiye, mujhe abhi response nahi mila. Kripya dobara try karein.'
+          text: replyText || 'Sorry, I did not receive a response. Please try again.'
         }
       ]);
     } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'The assistant is temporarily unavailable. Please try again.';
       setMessages((prev) => [
         ...prev,
         {
           id: `assistant_${Date.now()}`,
           role: 'assistant',
-          text: 'Kshama kijiye, abhi connection issue hai. Kripya thodi der baad try karein.'
+          text: message
         }
       ]);
     } finally {
@@ -110,8 +103,8 @@ export default function Chatbot() {
         <div className="w-[320px] sm:w-[360px] h-[520px] max-h-[70vh] bg-card/95 backdrop-blur-xl border border-border rounded-2xl shadow-2xl overflow-hidden">
           <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-white/70">
             <div>
-              <p className="text-sm font-semibold text-foreground">{t('chat.title', 'VedicUtsav Assistant')}</p>
-              <p className="text-xs text-muted-foreground">{t('chat.subtitle', 'Powered by Gemini')}</p>
+              <p className="text-sm font-semibold text-foreground">VedicUtsav Assistant</p>
+              <p className="text-xs text-muted-foreground">Powered by Gemini</p>
             </div>
             <button
               type="button"
@@ -143,7 +136,7 @@ export default function Chatbot() {
             {isSending && (
               <div className="flex justify-start">
                 <div className="bg-white text-foreground border border-border rounded-2xl px-4 py-2 text-sm font-geist">
-                  {t('chat.typing', 'Typing...')}
+                  Typing...
                 </div>
               </div>
             )}
@@ -152,7 +145,7 @@ export default function Chatbot() {
 
           <div className="px-4 py-3 border-t border-border bg-white/70 space-y-3">
             <div className="flex flex-wrap gap-2">
-              {suggestionsByLanguage[language].map((suggestion) => (
+              {suggestions.map((suggestion) => (
                 <button
                   key={suggestion}
                   type="button"
@@ -162,6 +155,23 @@ export default function Chatbot() {
                   {suggestion}
                 </button>
               ))}
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              <a
+                href="https://wa.me/919369190920"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs px-3 py-1.5 rounded-full bg-success text-success-foreground"
+              >
+                WhatsApp Us
+              </a>
+              <a
+                href="mailto:vaidikutsav03@gmail.com"
+                className="text-xs px-3 py-1.5 rounded-full border border-border text-foreground"
+              >
+                Email Us
+              </a>
             </div>
 
             <form
@@ -175,7 +185,7 @@ export default function Chatbot() {
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder={t('chat.input', 'Type your message...')}
+                placeholder="Type your message..."
                 className="flex-1 px-3 py-2 rounded-xl border border-border bg-card text-foreground text-sm font-geist focus:outline-none focus:ring-2 focus:ring-primary/30"
               />
               <button
@@ -202,7 +212,7 @@ export default function Chatbot() {
         aria-label="Open chat"
       >
         <Icon name="ChatBubbleLeftRightIcon" className="w-5 h-5" />
-        <span className="text-sm font-semibold">{t('chat.open', 'Chat with us')}</span>
+        <span className="text-sm font-semibold">Chat with us</span>
       </button>
     </div>
   );

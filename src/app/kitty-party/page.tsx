@@ -4,6 +4,7 @@ import AppImage from '@/components/ui/AppImage';
 import Icon from '@/components/ui/AppIcon';
 import Footer from '@/components/common/Footer';
 import Link from 'next/link';
+import { useSeo } from '@/lib/seo';
 
 interface Offering {
   id: string;
@@ -157,6 +158,11 @@ const galleryItems: GalleryItem[] = [
 
 
 export default function KittyPartyPage() {
+  useSeo(
+    'kitty-party',
+    'Kitty Party & Social Events | VedicUtsav',
+    'Elegant kitty parties and social gatherings with curated themes and experiences.'
+  );
   useEffect(() => {
     const reveals = document.querySelectorAll('.reveal');
     if (!reveals.length) return;

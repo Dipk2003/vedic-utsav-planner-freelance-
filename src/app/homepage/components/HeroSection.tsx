@@ -1,8 +1,23 @@
 'use client';
 import AppImage from '@/components/ui/AppImage';
 import Link from 'next/link';
+import { useLanguage } from '@/lib/i18n';
+import { useSiteContent } from '@/lib/site-content';
 
 export default function HeroSection() {
+  const { t } = useLanguage();
+  const content = useSiteContent(['hero_badge', 'hero_title', 'hero_subtitle']);
+  const badgeText = content.hero_badge || t('hero.service_areas', 'Delhi, Greater Noida, Varanasi');
+  const heroTitle =
+    content.hero_title ||
+    t('hero.title', 'Your Vision|Our Expertise|Unforgettable Events.');
+  const heroTitleParts = heroTitle.split('|');
+  const heroSubtitle =
+    content.hero_subtitle ||
+    t(
+      'hero.subtitle',
+      'From intimate gatherings to grand celebrations, we bring your dream events to life with meticulous planning and flawless execution.'
+    );
   const scrollToForm = () => {
     const formSection = document.getElementById('contact-form');
     if (formSection) {
@@ -34,16 +49,16 @@ export default function HeroSection() {
         <div className="flex items-center gap-3">
           <span className="px-5 py-2.5 rounded-full glass-panel text-white text-sm font-medium tracking-wide font-geist flex items-center gap-2 cursor-hover">
             <span className="w-2 h-2 rounded-full bg-success"></span>
-            Delhi • Greater Noida • Varanasi
+            {badgeText}
           </span>
         </div>
 
         <div className="hidden md:flex items-center gap-3">
           <span className="px-5 py-2.5 rounded-full glass-panel text-white text-sm font-medium tracking-wide font-geist cursor-hover">
-            500+ Events Executed
+            {t('hero.events_executed', '500+ Events Executed')}
           </span>
           <span className="px-5 py-2.5 rounded-full glass-panel text-white text-sm font-medium tracking-wide font-geist flex items-center gap-2 cursor-hover">
-            <span className="text-primary">★</span> 4.9 Client Rating
+            <span className="text-primary">★</span> {t('hero.rating', '4.9 Client Rating')}
           </span>
         </div>
       </nav>
@@ -68,13 +83,16 @@ export default function HeroSection() {
           </div>
 
           <h1 className="text-5xl md:text-8xl font-medium text-white tracking-tight font-jakarta mb-6 leading-[1.05] drop-shadow-xl animate-enter delay-200">
-            Your Vision. <br />
-            Our Expertise. <br />
-            <span className="text-primary">Unforgettable Events.</span>
+            {heroTitleParts.map((line, index) => (
+              <span key={index} className={index === 2 ? 'text-primary' : undefined}>
+                {line}
+                {index < heroTitleParts.length - 1 && <><br /></>}
+              </span>
+            ))}
           </h1>
 
           <p className="text-white/80 text-lg md:text-xl font-light max-w-2xl leading-relaxed font-geist mb-10 animate-enter delay-300">
-            From intimate gatherings to grand celebrations, we bring your dream events to life with meticulous planning and flawless execution.
+            {heroSubtitle}
           </p>
 
           <div className="flex flex-col md:flex-row items-start md:items-center gap-4 animate-enter delay-500">
@@ -82,7 +100,7 @@ export default function HeroSection() {
               onClick={scrollToForm}
               className="flex items-center gap-3 bg-primary text-primary-foreground pl-8 pr-2 py-2.5 rounded-full font-semibold text-sm hover:bg-primary/90 transition font-geist group cursor-hover btn-hover-lift">
               
-              Plan Your Event
+              {t('cta.plan_event', 'Plan Your Event')}
               <span className="bg-primary-foreground text-primary p-2 rounded-full transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M7 7h10v10"></path>
@@ -94,7 +112,7 @@ export default function HeroSection() {
               onClick={scrollToGallery}
               className="flex items-center gap-3 glass-panel text-white pl-8 pr-2 py-2.5 rounded-full font-medium text-sm hover:bg-white/20 transition font-geist group cursor-hover">
               
-              View Our Work
+              {t('cta.view_work', 'View Our Work')}
               <span className="bg-white/10 text-white p-2 rounded-full border border-white/10">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M5 12h14"></path>

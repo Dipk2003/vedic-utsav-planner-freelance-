@@ -4,6 +4,7 @@ import AppImage from '@/components/ui/AppImage';
 import Icon from '@/components/ui/AppIcon';
 import Footer from '@/components/common/Footer';
 import Link from 'next/link';
+import { useSeo } from '@/lib/seo';
 
 interface Offering {
   id: string;
@@ -155,6 +156,11 @@ const galleryItems: GalleryItem[] = [
 
 
 export default function CorporateEventsPage() {
+  useSeo(
+    'corporate-events',
+    'Corporate Event Management | VedicUtsav',
+    'Corporate conferences, product launches, and team events with seamless execution.'
+  );
   useEffect(() => {
     const reveals = document.querySelectorAll('.reveal');
     if (!reveals.length) return;
