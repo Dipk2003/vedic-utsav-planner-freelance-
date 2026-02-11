@@ -26,7 +26,7 @@ const testimonials: Testimonial[] = [
   location: 'Delhi',
   date: 'December 2025',
   rating: 5,
-  quote: "VedicUtsav managed our 600-guest wedding flawlessly. Every ritual was perfect, the coordination was seamless, and our families were amazed. They truly understood our vision and made it a reality beyond our expectations.",
+  quote: "VaidikUtsav managed our 600-guest wedding flawlessly. Every ritual was perfect, the coordination was seamless, and our families were amazed. They truly understood our vision and made it a reality beyond our expectations.",
   image: "https://images.unsplash.com/photo-1726068449701-4e11c5d64b11",
   alt: 'Happy Indian bride and groom in traditional wedding attire',
   details: 'Traditional Hindu ceremony with 3-day celebration'
@@ -62,7 +62,7 @@ const testimonials: Testimonial[] = [
   location: 'Varanasi',
   date: 'October 2025',
   rating: 5,
-  quote: "Celebrating 25 years deserved something special, and VedicUtsav delivered! The royal palace venue, the elegant decor, and the surprise elements they planned left our 200 guests in awe. Truly memorable.",
+  quote: "Celebrating 25 years deserved something special, and VaidikUtsav delivered! The royal palace venue, the elegant decor, and the surprise elements they planned left our 200 guests in awe. Truly memorable.",
   image: "https://img.rocket.new/generatedImages/rocket_gen_img_15e7c974f-1766924254270.png",
   alt: 'Elegant mature couple in formal attire at anniversary celebration',
   details: 'Elegant celebration at a heritage venue with live music'
@@ -94,7 +94,7 @@ export default function TestimonialsSection() {
   const currentTestimonial = testimonials[currentIndex];
 
   return (
-    <section className="w-full px-8 md:px-16 py-20 lg:py-28 bg-dark text-white overflow-hidden">
+    <section id="testimonials" className="w-full px-8 md:px-16 py-20 lg:py-28 bg-dark text-white overflow-hidden">
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
         <div className="text-center mb-16 reveal-hidden reveal">
@@ -222,3 +222,4 @@ export default function TestimonialsSection() {
     </section>);
 
 }
+

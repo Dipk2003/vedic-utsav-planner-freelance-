@@ -4,7 +4,6 @@ import AppImage from '@/components/ui/AppImage';
 import Icon from '@/components/ui/AppIcon';
 import Footer from '@/components/common/Footer';
 import Link from 'next/link';
-import { useSeo } from '@/lib/seo';
 
 interface Offering {
   id: string;
@@ -156,11 +155,6 @@ const galleryItems: GalleryItem[] = [
 
 
 export default function CorporateEventsPage() {
-  useSeo(
-    'corporate-events',
-    'Corporate Event Planner in Delhi, Greater Noida & Varanasi | VedicUtsav',
-    'Corporate event planner in Delhi, Greater Noida, and Varanasi for conferences, product launches, offsites, and hybrid events.'
-  );
   useEffect(() => {
     const reveals = document.querySelectorAll('.reveal');
     if (!reveals.length) return;
@@ -194,7 +188,7 @@ export default function CorporateEventsPage() {
 
         <nav className="absolute top-0 left-0 right-0 z-50 px-6 md:px-10 py-6 flex justify-between items-center">
           <Link href="/homepage" className="text-white font-bold text-xl font-jakarta hover:text-primary transition-colors">
-            VedicUtsav
+            VaidikUtsav
           </Link>
           <Link href="/homepage" className="px-5 py-2.5 rounded-full glass-panel text-white text-sm font-medium">
             Back to Home
@@ -376,3 +370,4 @@ export default function CorporateEventsPage() {
     </main>);
 
 }
+

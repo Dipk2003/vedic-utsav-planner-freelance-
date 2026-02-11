@@ -16,7 +16,7 @@ const translations: Record<Language, TranslationMap> = {
     'lang.english': 'English',
     'lang.hindi': 'Hindi',
     'lang.toggle': 'Language',
-    'chat.title': 'VedicUtsav Assistant',
+    'chat.title': 'VaidikUtsav Assistant',
     'chat.subtitle': 'Powered by Gemini',
     'chat.open': 'Chat with us',
     'chat.input': 'Type your message...',
@@ -145,7 +145,7 @@ const translations: Record<Language, TranslationMap> = {
     'lang.english': 'English',
     'lang.hindi': 'Hindi',
     'lang.toggle': 'Bhasha',
-    'chat.title': 'VedicUtsav Sahayak',
+    'chat.title': 'VaidikUtsav Sahayak',
     'chat.subtitle': 'Gemini dwara sanchalit',
     'chat.open': 'Chat karein',
     'chat.input': 'Apna sandesh likhen...',
@@ -307,3 +307,4 @@ export function useLanguage() {
   }
   return context;
 }
+

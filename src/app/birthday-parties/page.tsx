@@ -4,7 +4,6 @@ import AppImage from '@/components/ui/AppImage';
 import Icon from '@/components/ui/AppIcon';
 import Footer from '@/components/common/Footer';
 import Link from 'next/link';
-import { useSeo } from '@/lib/seo';
 
 interface Offering {
   id: string;
@@ -158,11 +157,6 @@ const galleryItems: GalleryItem[] = [
 
 
 export default function BirthdayPartiesPage() {
-  useSeo(
-    'birthday-parties',
-    'Birthday Party Planning | VedicUtsav',
-    'Themed birthday parties for kids and adults with custom decor and entertainment.'
-  );
   useEffect(() => {
     const reveals = document.querySelectorAll('.reveal');
     if (!reveals.length) return;
@@ -196,7 +190,7 @@ export default function BirthdayPartiesPage() {
 
         <nav className="absolute top-0 left-0 right-0 z-50 px-6 md:px-10 py-6 flex justify-between items-center">
           <Link href="/homepage" className="text-white font-bold text-xl font-jakarta hover:text-primary transition-colors">
-            VedicUtsav
+            VaidikUtsav
           </Link>
           <Link href="/homepage" className="px-5 py-2.5 rounded-full glass-panel text-white text-sm font-medium">
             Back to Home
@@ -378,3 +372,4 @@ export default function BirthdayPartiesPage() {
     </main>);
 
 }
+

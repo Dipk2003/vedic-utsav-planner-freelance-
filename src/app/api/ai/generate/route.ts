@@ -35,7 +35,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'Title or topic is required' }, { status: 400 });
       }
       prompt = [
-        'You are a senior event content writer for VedicUtsav.',
+        'You are a senior event content writer for VaidikUtsav.',
         'Write a blog post for our event planning company.',
         'Use formal, professional English.',
         'Return ONLY valid JSON with keys: title, excerpt, content, seo_title, seo_description.',
@@ -49,7 +49,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'Title or content is required' }, { status: 400 });
       }
       prompt = [
-        'You are an SEO specialist for VedicUtsav.',
+        'You are an SEO specialist for VaidikUtsav.',
         'Use formal, professional English.',
         'Return ONLY valid JSON with keys: seo_title and seo_description.',
         'SEO title 50-60 chars, description 140-160 chars.',
@@ -111,3 +111,4 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }
 }
+

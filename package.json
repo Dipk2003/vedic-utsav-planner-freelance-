@@ -1,5 +1,5 @@
 {
-  "name": "vedicutsav",
+  "name": "VaidikUtsav",
   "version": "0.1.0",
   "private": true,
   "rocketCritical": {
@@ -79,3 +79,4 @@
     "typescript": "^5"
   }
 }
+

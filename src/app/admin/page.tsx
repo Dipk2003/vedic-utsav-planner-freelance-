@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
 import { supabase } from '@/lib/supabase/client';
-import { useLanguage } from '@/lib/i18n';
+import { useLanguage, type Language } from '@/lib/i18n';
 
 const tabs = ['leads', 'blog', 'content', 'seo', 'ai'] as const;
 
@@ -53,7 +53,9 @@ type SeoPage = {
   updated_at: string;
 };
 
-const emptyPost: BlogPost = {
+type MessageState = { type: 'success' | 'error'; text: string } | null;
+
+const emptyPost = (lang: Language): BlogPost => ({
   id: '',
   created_at: '',
   updated_at: '',
@@ -63,27 +65,27 @@ const emptyPost: BlogPost = {
   content: '',
   cover_image: '',
   status: 'draft',
-  lang: 'en',
+  lang,
   seo_title: '',
   seo_description: ''
-};
+});
 
-const emptyContent: SiteContent = {
+const emptyContent = (lang: Language): SiteContent => ({
   id: '',
   key: '',
-  lang: 'en',
+  lang,
   value: '',
   updated_at: ''
-};
+});
 
-const emptySeo: SeoPage = {
+const emptySeo = (lang: Language): SeoPage => ({
   id: '',
   page: '',
-  lang: 'en',
+  lang,
   title: '',
   description: '',
   updated_at: ''
-};
+});
 
 function slugify(value: string) {
   return value
@@ -105,15 +107,17 @@ export default function AdminPage() {
   const [authPassword, setAuthPassword] = useState('');
   const [authError, setAuthError] = useState('');
   const [activeTab, setActiveTab] = useState<Tab>('leads');
+  const [adminLang, setAdminLang] = useState<Language>('en');
+  const [message, setMessage] = useState<MessageState>(null);
 
   const [leads, setLeads] = useState<Lead[]>([]);
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [contentRows, setContentRows] = useState<SiteContent[]>([]);
   const [seoRows, setSeoRows] = useState<SeoPage[]>([]);
 
-  const [editingPost, setEditingPost] = useState<BlogPost>(emptyPost);
-  const [editingContent, setEditingContent] = useState<SiteContent>(emptyContent);
-  const [editingSeo, setEditingSeo] = useState<SeoPage>(emptySeo);
+  const [editingPost, setEditingPost] = useState<BlogPost>(() => emptyPost('en'));
+  const [editingContent, setEditingContent] = useState<SiteContent>(() => emptyContent('en'));
+  const [editingSeo, setEditingSeo] = useState<SeoPage>(() => emptySeo('en'));
   const [aiInput, setAiInput] = useState('');
   const [aiOutput, setAiOutput] = useState('');
   const [saving, setSaving] = useState(false);
@@ -137,44 +141,80 @@ export default function AdminPage() {
     if (session) {
       refreshAll();
     }
-  }, [session]);
+  }, [session, adminLang]);
+
+  useEffect(() => {
+    setEditingPost(emptyPost(adminLang));
+    setEditingContent(emptyContent(adminLang));
+    setEditingSeo(emptySeo(adminLang));
+  }, [adminLang]);
+
+  useEffect(() => {
+    if (!message) return;
+    const timeout = setTimeout(() => setMessage(null), 4000);
+    return () => clearTimeout(timeout);
+  }, [message]);
+
+  const showMessage = (type: 'success' | 'error', text: string) => {
+    setMessage({ type, text });
+  };
 
   const refreshAll = async () => {
     await Promise.all([loadLeads(), loadPosts(), loadContent(), loadSeo()]);
   };
 
   const loadLeads = async () => {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('leads')
       .select('*')
       .order('created_at', { ascending: false });
+    if (error) {
+      showMessage('error', error.message);
+      setLeads([]);
+      return;
+    }
     setLeads((data || []) as Lead[]);
   };
 
   const loadPosts = async () => {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('blog_posts')
       .select('*')
-      .eq('lang', 'en')
+      .eq('lang', adminLang)
       .order('updated_at', { ascending: false });
+    if (error) {
+      showMessage('error', error.message);
+      setPosts([]);
+      return;
+    }
     setPosts((data || []) as BlogPost[]);
   };
 
   const loadContent = async () => {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('site_content')
       .select('*')
-      .eq('lang', 'en')
+      .eq('lang', adminLang)
       .order('updated_at', { ascending: false });
+    if (error) {
+      showMessage('error', error.message);
+      setContentRows([]);
+      return;
+    }
     setContentRows((data || []) as SiteContent[]);
   };
 
   const loadSeo = async () => {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('seo_pages')
       .select('*')
-      .eq('lang', 'en')
+      .eq('lang', adminLang)
       .order('updated_at', { ascending: false });
+    if (error) {
+      showMessage('error', error.message);
+      setSeoRows([]);
+      return;
+    }
     setSeoRows((data || []) as SeoPage[]);
   };
 
@@ -195,61 +235,192 @@ export default function AdminPage() {
   };
 
   const handleSavePost = async () => {
-    if (!editingPost.title.trim()) return;
+    const title = editingPost.title.trim();
+    if (!title) {
+      showMessage('error', 'Title is required.');
+      return;
+    }
+
+    const derivedSlug = (editingPost.slug || slugify(title)).trim();
+    if (!derivedSlug) {
+      showMessage('error', 'Slug is required.');
+      return;
+    }
+
     setSaving(true);
-    const payload: Partial<BlogPost> = {
-      ...editingPost,
-      slug: editingPost.slug || slugify(editingPost.title),
-      excerpt: editingPost.excerpt || null,
-      content: editingPost.content || null,
-      cover_image: editingPost.cover_image || null,
-      seo_title: editingPost.seo_title || null,
-      seo_description: editingPost.seo_description || null
+    const now = new Date().toISOString();
+    const postLang = editingPost.lang || adminLang;
+    const payload: Partial<BlogPost> & { created_at?: string } = {
+      id: editingPost.id || undefined,
+      title,
+      slug: derivedSlug,
+      excerpt: editingPost.excerpt?.trim() || null,
+      content: editingPost.content?.trim() || null,
+      cover_image: editingPost.cover_image?.trim() || null,
+      status: editingPost.status || 'draft',
+      lang: postLang,
+      seo_title: editingPost.seo_title?.trim() || null,
+      seo_description: editingPost.seo_description?.trim() || null,
+      updated_at: now
     };
-    if (!editingPost.id) {
+
+    if (editingPost.id && editingPost.created_at) {
+      payload.created_at = editingPost.created_at;
+    } else if (!editingPost.id) {
+      payload.created_at = now;
+    }
+
+    if (!payload.id) {
       delete (payload as any).id;
     }
 
     const { error } = await supabase.from('blog_posts').upsert(payload, { onConflict: 'id' });
     setSaving(false);
-    if (!error) {
-      await loadPosts();
-      setEditingPost(emptyPost);
+    if (error) {
+      showMessage('error', error.message);
+      return;
     }
+    showMessage('success', 'Post saved.');
+    await loadPosts();
+    setEditingPost(emptyPost(adminLang));
   };
 
   const handleSaveContent = async () => {
-    if (!editingContent.key.trim() || !editingContent.value.trim()) return;
-    setSaving(true);
-    const payload = {
-      ...editingContent,
-      value: editingContent.value
-    };
-    const { error } = await supabase.from('site_content').upsert(payload, { onConflict: 'key,lang' });
-    setSaving(false);
-    if (!error) {
-      await loadContent();
-      setEditingContent(emptyContent);
+    const key = editingContent.key.trim();
+    const value = editingContent.value.trim();
+    if (!key || !value) {
+      showMessage('error', 'Key and value are required.');
+      return;
     }
+    setSaving(true);
+    const now = new Date().toISOString();
+    const existingRow = contentRows.find((row) => row.key === key && row.lang === adminLang);
+    const targetId = editingContent.id || existingRow?.id;
+
+    const payload = {
+      key,
+      lang: adminLang,
+      value,
+      updated_at: now
+    };
+
+    const { error } = targetId
+      ? await supabase.from('site_content').update(payload).eq('id', targetId)
+      : await supabase.from('site_content').insert({ ...payload, created_at: now });
+    setSaving(false);
+    if (error) {
+      showMessage('error', error.message);
+      return;
+    }
+    showMessage('success', 'Content saved.');
+    await loadContent();
+    setEditingContent(emptyContent(adminLang));
   };
 
   const handleSaveSeo = async () => {
-    if (!editingSeo.page.trim() || !editingSeo.title.trim()) return;
-    setSaving(true);
-    const payload = {
-      ...editingSeo,
-      description: editingSeo.description
-    };
-    const { error } = await supabase.from('seo_pages').upsert(payload, { onConflict: 'page,lang' });
-    setSaving(false);
-    if (!error) {
-      await loadSeo();
-      setEditingSeo(emptySeo);
+    const page = editingSeo.page.trim();
+    const title = editingSeo.title.trim();
+    if (!page || !title) {
+      showMessage('error', 'Page and title are required.');
+      return;
     }
+    setSaving(true);
+    const now = new Date().toISOString();
+    const existingRow = seoRows.find((row) => row.page === page && row.lang === adminLang);
+    const targetId = editingSeo.id || existingRow?.id;
+
+    const payload = {
+      page,
+      lang: adminLang,
+      title,
+      description: editingSeo.description?.trim() || '',
+      updated_at: now
+    };
+
+    const { error } = targetId
+      ? await supabase.from('seo_pages').update(payload).eq('id', targetId)
+      : await supabase.from('seo_pages').insert({ ...payload, created_at: now });
+    setSaving(false);
+    if (error) {
+      showMessage('error', error.message);
+      return;
+    }
+    showMessage('success', 'SEO saved.');
+    await loadSeo();
+    setEditingSeo(emptySeo(adminLang));
+  };
+
+  const handleDeletePost = async (postId: string) => {
+    if (!postId) return;
+    const confirmed = window.confirm('Delete this post? This action cannot be undone.');
+    if (!confirmed) return;
+    setSaving(true);
+    const { error } = await supabase.from('blog_posts').delete().eq('id', postId);
+    setSaving(false);
+    if (error) {
+      showMessage('error', error.message);
+      return;
+    }
+    showMessage('success', 'Post deleted.');
+    await loadPosts();
+    setEditingPost(emptyPost(adminLang));
+  };
+
+  const handleSetPostStatus = async (status: 'draft' | 'published') => {
+    if (!editingPost.id) return;
+    setSaving(true);
+    const now = new Date().toISOString();
+    const { error } = await supabase
+      .from('blog_posts')
+      .update({ status, updated_at: now })
+      .eq('id', editingPost.id);
+    setSaving(false);
+    if (error) {
+      showMessage('error', error.message);
+      return;
+    }
+    setEditingPost((prev) => ({ ...prev, status, updated_at: now }));
+    showMessage('success', status === 'published' ? 'Post published.' : 'Post set to draft.');
+    await loadPosts();
+  };
+
+  const handleDeleteContent = async (rowId: string) => {
+    if (!rowId) return;
+    const confirmed = window.confirm('Delete this content entry? This action cannot be undone.');
+    if (!confirmed) return;
+    setSaving(true);
+    const { error } = await supabase.from('site_content').delete().eq('id', rowId);
+    setSaving(false);
+    if (error) {
+      showMessage('error', error.message);
+      return;
+    }
+    showMessage('success', 'Content deleted.');
+    await loadContent();
+    setEditingContent(emptyContent(adminLang));
+  };
+
+  const handleDeleteSeo = async (rowId: string) => {
+    if (!rowId) return;
+    const confirmed = window.confirm('Delete this SEO entry? This action cannot be undone.');
+    if (!confirmed) return;
+    setSaving(true);
+    const { error } = await supabase.from('seo_pages').delete().eq('id', rowId);
+    setSaving(false);
+    if (error) {
+      showMessage('error', error.message);
+      return;
+    }
+    showMessage('success', 'SEO entry deleted.');
+    await loadSeo();
+    setEditingSeo(emptySeo(adminLang));
   };
 
   const handleGenerateBlog = async () => {
-    if (!editingPost.title.trim()) return;
+    if (!editingPost.title.trim()) {
+      showMessage('error', 'Title is required for AI generation.');
+      return;
+    }
     setSaving(true);
     const response = await fetch('/api/ai/generate', {
       method: 'POST',
@@ -259,8 +430,12 @@ export default function AdminPage() {
         title: editingPost.title
       })
     });
-    const data = await response.json();
+    const data = await response.json().catch(() => null);
     setSaving(false);
+    if (!response.ok || data?.error) {
+      showMessage('error', data?.error || 'AI request failed.');
+      return;
+    }
     if (data?.result) {
       setEditingPost((prev) => ({
         ...prev,
@@ -270,11 +445,15 @@ export default function AdminPage() {
         seo_title: data.result.seo_title || prev.seo_title,
         seo_description: data.result.seo_description || prev.seo_description
       }));
+      showMessage('success', 'AI content generated.');
     }
   };
 
   const handleGenerateSeo = async () => {
-    if (!editingSeo.title.trim() && !editingSeo.description.trim()) return;
+    if (!editingSeo.title.trim() && !editingSeo.description.trim()) {
+      showMessage('error', 'Provide a title or description for AI generation.');
+      return;
+    }
     setSaving(true);
     const response = await fetch('/api/ai/generate', {
       method: 'POST',
@@ -285,19 +464,27 @@ export default function AdminPage() {
         content: editingSeo.description
       })
     });
-    const data = await response.json();
+    const data = await response.json().catch(() => null);
     setSaving(false);
+    if (!response.ok || data?.error) {
+      showMessage('error', data?.error || 'AI request failed.');
+      return;
+    }
     if (data?.result) {
       setEditingSeo((prev) => ({
         ...prev,
         title: data.result.seo_title || prev.title,
         description: data.result.seo_description || prev.description
       }));
+      showMessage('success', 'AI SEO generated.');
     }
   };
 
   const handleAiTranslate = async () => {
-    if (!aiInput.trim()) return;
+    if (!aiInput.trim()) {
+      showMessage('error', 'Enter text to translate.');
+      return;
+    }
     setSaving(true);
     const response = await fetch('/api/ai/generate', {
       method: 'POST',
@@ -307,10 +494,15 @@ export default function AdminPage() {
         text: aiInput
       })
     });
-    const data = await response.json();
+    const data = await response.json().catch(() => null);
     setSaving(false);
+    if (!response.ok || data?.error) {
+      showMessage('error', data?.error || 'AI request failed.');
+      return;
+    }
     if (data?.result?.translation) {
       setAiOutput(data.result.translation);
+      showMessage('success', 'Translation ready.');
     }
   };
 
@@ -363,19 +555,44 @@ export default function AdminPage() {
   return (
     <main className="min-h-screen bg-background px-6 py-8">
       <div className="max-w-6xl mx-auto">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
           <div>
             <h1 className="text-3xl font-semibold">{t('admin.title', 'Admin Dashboard')}</h1>
             <p className="text-sm text-muted-foreground">{session?.user?.email}</p>
           </div>
-          <button
-            type="button"
-            onClick={handleSignOut}
-            className="px-4 py-2 rounded-full border border-border text-sm font-medium"
-          >
-            {t('admin.sign_out', 'Sign Out')}
-          </button>
+          <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">
+                {t('admin.language', 'Language')}
+              </span>
+              <select
+                value={adminLang}
+                onChange={(e) => setAdminLang(e.target.value as Language)}
+                className="px-3 py-2 rounded-full border border-border text-sm bg-card"
+              >
+                <option value="en">{t('lang.english', 'English')}</option>
+                <option value="hi">{t('lang.hindi', 'Hindi')}</option>
+              </select>
+            </div>
+            <button
+              type="button"
+              onClick={handleSignOut}
+              className="px-4 py-2 rounded-full border border-border text-sm font-medium"
+            >
+              {t('admin.sign_out', 'Sign Out')}
+            </button>
+          </div>
         </div>
+
+        {message && (
+          <div
+            className={`mb-6 rounded-xl border px-4 py-3 text-sm bg-muted ${
+              message.type === 'error' ? 'border-error text-error' : 'border-success text-success'
+            }`}
+          >
+            {message.text}
+          </div>
+        )}
 
         <div className="flex flex-wrap gap-2 mb-6">
           {tabs.map((tab) => (
@@ -408,7 +625,26 @@ export default function AdminPage() {
                         <p className="font-semibold">{lead.name}</p>
                         <p className="text-sm text-muted-foreground">{lead.email}</p>
                         <p className="text-sm text-muted-foreground">{lead.phone}</p>
-                        <p className="text-xs text-muted-foreground mt-1">{lead.city} - {lead.event_type}</p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {lead.city} - {lead.event_type}
+                        </p>
+                        <div className="mt-2 flex flex-wrap gap-3 text-xs text-muted-foreground">
+                          {lead.event_date && (
+                            <span>
+                              {t('admin.lead_date', 'Event Date')}: {lead.event_date}
+                            </span>
+                          )}
+                          {lead.guest_count && (
+                            <span>
+                              {t('admin.lead_guest', 'Guest Count')}: {lead.guest_count}
+                            </span>
+                          )}
+                          {lead.source && (
+                            <span>
+                              {t('admin.lead_source', 'Source')}: {lead.source}
+                            </span>
+                          )}
+                        </div>
                       </div>
                       <div className="flex flex-wrap gap-2">
                         <a
@@ -444,7 +680,7 @@ export default function AdminPage() {
                 <h2 className="text-lg font-semibold">{t('admin.blog', 'Blog')}</h2>
                 <button
                   type="button"
-                  onClick={() => setEditingPost({ ...emptyPost, lang: 'en' })}
+                  onClick={() => setEditingPost(emptyPost(adminLang))}
                   className="text-xs px-3 py-1.5 rounded-full border border-border"
                 >
                   {t('admin.new_post', 'New Post')}
@@ -494,7 +730,7 @@ export default function AdminPage() {
                 />
                 <input
                   type="text"
-                  value="English"
+                  value={adminLang === 'hi' ? t('lang.hindi', 'Hindi') : t('lang.english', 'English')}
                   readOnly
                   className="px-4 py-2 rounded-xl border border-border bg-muted text-muted-foreground"
                 />
@@ -519,6 +755,13 @@ export default function AdminPage() {
                 value={editingPost.content || ''}
                 onChange={(e) => setEditingPost({ ...editingPost, content: e.target.value })}
                 placeholder={t('admin.content_label', 'Content')}
+                className="w-full px-4 py-2 rounded-xl border border-border mb-4"
+              />
+              <input
+                type="url"
+                value={editingPost.cover_image || ''}
+                onChange={(e) => setEditingPost({ ...editingPost, cover_image: e.target.value })}
+                placeholder="Cover image URL"
                 className="w-full px-4 py-2 rounded-xl border border-border mb-4"
               />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -546,6 +789,26 @@ export default function AdminPage() {
                 >
                   {t('admin.generate', 'Generate with AI')}
                 </button>
+                {editingPost.id && editingPost.status === 'draft' && (
+                  <button
+                    type="button"
+                    onClick={() => handleSetPostStatus('published')}
+                    className="px-4 py-2 rounded-full border border-border text-sm"
+                    disabled={saving}
+                  >
+                    {t('admin.publish', 'Publish')}
+                  </button>
+                )}
+                {editingPost.id && editingPost.status === 'published' && (
+                  <button
+                    type="button"
+                    onClick={() => handleSetPostStatus('draft')}
+                    className="px-4 py-2 rounded-full border border-border text-sm"
+                    disabled={saving}
+                  >
+                    {t('admin.unpublish', 'Unpublish')}
+                  </button>
+                )}
                 <button
                   type="button"
                   onClick={handleSavePost}
@@ -554,6 +817,16 @@ export default function AdminPage() {
                 >
                   {t('admin.save', 'Save')}
                 </button>
+                {editingPost.id && (
+                  <button
+                    type="button"
+                    onClick={() => handleDeletePost(editingPost.id)}
+                    className="px-4 py-2 rounded-full border border-error text-error text-sm"
+                    disabled={saving}
+                  >
+                    Delete
+                  </button>
+                )}
               </div>
             </div>
           </section>
@@ -562,7 +835,16 @@ export default function AdminPage() {
         {activeTab === 'content' && (
           <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="bg-card border border-border rounded-2xl p-4">
-              <h2 className="text-lg font-semibold mb-4">{t('admin.content', 'Site Content')}</h2>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold">{t('admin.content', 'Site Content')}</h2>
+                <button
+                  type="button"
+                  onClick={() => setEditingContent(emptyContent(adminLang))}
+                  className="text-xs px-3 py-1.5 rounded-full border border-border"
+                >
+                  New
+                </button>
+              </div>
               <div className="space-y-3">
                 {contentRows.length === 0 && (
                   <p className="text-sm text-muted-foreground">{t('admin.no_data', 'No data found.')}</p>
@@ -591,7 +873,7 @@ export default function AdminPage() {
                 />
                 <input
                   type="text"
-                  value="English"
+                  value={adminLang === 'hi' ? t('lang.hindi', 'Hindi') : t('lang.english', 'English')}
                   readOnly
                   className="px-4 py-2 rounded-xl border border-border bg-muted text-muted-foreground"
                 />
@@ -603,14 +885,26 @@ export default function AdminPage() {
                 placeholder="Value"
                 className="w-full px-4 py-2 rounded-xl border border-border mb-4"
               />
-              <button
-                type="button"
-                onClick={handleSaveContent}
-                className="px-4 py-2 rounded-full bg-primary text-primary-foreground text-sm"
-                disabled={saving}
-              >
-                {t('admin.save', 'Save')}
-              </button>
+              <div className="flex flex-wrap gap-3">
+                <button
+                  type="button"
+                  onClick={handleSaveContent}
+                  className="px-4 py-2 rounded-full bg-primary text-primary-foreground text-sm"
+                  disabled={saving}
+                >
+                  {t('admin.save', 'Save')}
+                </button>
+                {editingContent.id && (
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteContent(editingContent.id)}
+                    className="px-4 py-2 rounded-full border border-error text-error text-sm"
+                    disabled={saving}
+                  >
+                    Delete
+                  </button>
+                )}
+              </div>
             </div>
           </section>
         )}
@@ -618,7 +912,16 @@ export default function AdminPage() {
         {activeTab === 'seo' && (
           <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="bg-card border border-border rounded-2xl p-4">
-              <h2 className="text-lg font-semibold mb-4">{t('admin.seo', 'SEO')}</h2>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold">{t('admin.seo', 'SEO')}</h2>
+                <button
+                  type="button"
+                  onClick={() => setEditingSeo(emptySeo(adminLang))}
+                  className="text-xs px-3 py-1.5 rounded-full border border-border"
+                >
+                  New
+                </button>
+              </div>
               <div className="space-y-3">
                 {seoRows.length === 0 && (
                   <p className="text-sm text-muted-foreground">{t('admin.no_data', 'No data found.')}</p>
@@ -647,7 +950,7 @@ export default function AdminPage() {
                 />
                 <input
                   type="text"
-                  value="English"
+                  value={adminLang === 'hi' ? t('lang.hindi', 'Hindi') : t('lang.english', 'English')}
                   readOnly
                   className="px-4 py-2 rounded-xl border border-border bg-muted text-muted-foreground"
                 />
@@ -683,6 +986,16 @@ export default function AdminPage() {
                 >
                   {t('admin.save', 'Save')}
                 </button>
+                {editingSeo.id && (
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteSeo(editingSeo.id)}
+                    className="px-4 py-2 rounded-full border border-error text-error text-sm"
+                    disabled={saving}
+                  >
+                    Delete
+                  </button>
+                )}
               </div>
             </div>
           </section>

@@ -17,6 +17,9 @@ interface AppImageProps {
     sizes?: string;
     onClick?: () => void;
     fallbackSrc?: string;
+    loading?: 'lazy' | 'eager';
+    decoding?: 'async' | 'auto' | 'sync';
+    fetchPriority?: 'high' | 'low' | 'auto';
     [key: string]: any;
 }
 
@@ -36,6 +39,12 @@ function AppImage({
     fallbackSrc = '/assets/images/no_image.png',
     ...props
 }: AppImageProps) {
+    const {
+        loading: loadingProp,
+        decoding: decodingProp,
+        fetchPriority: fetchPriorityProp,
+        ...restProps
+    } = props;
     const [imageSrc, setImageSrc] = useState(src);
     const [isLoading, setIsLoading] = useState(true);
     const [hasError, setHasError] = useState(false);
@@ -59,6 +68,10 @@ function AppImage({
 
     const commonClassName = `${className} ${isLoading ? 'bg-gray-200' : ''} ${onClick ? 'cursor-pointer hover:opacity-90 transition-opacity' : ''}`;
 
+    const loadingMode = loadingProp ?? (priority ? 'eager' : 'lazy');
+    const decodingMode = decodingProp ?? 'async';
+    const fetchPriority = fetchPriorityProp ?? (priority ? 'high' : 'auto');
+
     // For external URLs or when in doubt, use regular img tag
     if (isExternal && !isLocal) {
         const imgStyle: React.CSSProperties = {};
@@ -76,8 +89,11 @@ function AppImage({
                         onError={handleError}
                         onLoad={handleLoad}
                         onClick={onClick}
+                        loading={loadingMode}
+                        decoding={decodingMode}
+                        fetchPriority={fetchPriority}
                         style={imgStyle}
-                        {...props}
+                        {...restProps}
                     />
                 </div>
             );
@@ -91,8 +107,11 @@ function AppImage({
                 onError={handleError}
                 onLoad={handleLoad}
                 onClick={onClick}
+                loading={loadingMode}
+                decoding={decodingMode}
+                fetchPriority={fetchPriority}
                 style={imgStyle}
-                {...props}
+                {...restProps}
             />
         );
     }
@@ -110,7 +129,8 @@ function AppImage({
         onError: handleError,
         onLoad: handleLoad,
         onClick,
-        ...props,
+        ...(priority ? {} : { loading: loadingMode }),
+        ...restProps,
     };
 
     if (fill) {

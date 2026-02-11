@@ -1,6 +1,7 @@
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 import { createServerClient } from '@/lib/supabase/server';
+import { getBaseUrl } from '@/lib/site-url';
 
 function renderParagraphs(content: string) {
   return content.split(/\n\n+/).map((block, idx) => (
@@ -15,16 +16,45 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   const supabase = createServerClient();
   const { data: post } = await supabase
     .from('blog_posts')
-    .select('seo_title, seo_description, title, excerpt')
+    .select('seo_title, seo_description, title, excerpt, cover_image')
     .eq('slug', params.slug)
     .eq('lang', lang)
     .maybeSingle();
 
   if (!post) return {};
 
+  const baseUrl = getBaseUrl();
+  const url = `${baseUrl}/blog/${params.slug}`;
+  const title = post.seo_title || post.title || 'VaidikUtsav Blog';
+  const description = post.seo_description || post.excerpt || 'VaidikUtsav blog post';
+  const images = post.cover_image
+    ? [
+        {
+          url: post.cover_image,
+          width: 1200,
+          height: 630,
+          alt: title,
+        },
+      ]
+    : undefined;
+
   return {
-    title: post.seo_title || post.title || 'VedicUtsav Blog',
-    description: post.seo_description || post.excerpt || 'VedicUtsav blog post'
+    title,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      title,
+      description,
+      url,
+      type: 'article',
+      images,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: post.cover_image ? [post.cover_image] : undefined,
+    },
   };
 }
 
@@ -59,3 +89,4 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
     </main>
   );
 }
+

@@ -62,6 +62,30 @@ const services: Service[] = [
     stats: { en: '100+ Events', hi: '100+ Events' },
     color: 'text-success',
     bgColor: 'bg-success/10'
+  },
+  {
+    id: 'service_education',
+    title: { en: 'Education Events', hi: 'Education Events' },
+    description: {
+      en: 'Award functions, education fairs, and education hunt events with smooth coordination',
+      hi: 'Award functions, education fairs, aur education hunt events ki smooth coordination'
+    },
+    iconName: 'AcademicCapIcon',
+    stats: { en: '40+ Events', hi: '40+ Events' },
+    color: 'text-indigo-600',
+    bgColor: 'bg-indigo-500/10'
+  },
+  {
+    id: 'service_rituals',
+    title: { en: 'Rituals Events', hi: 'Rituals Events' },
+    description: {
+      en: 'Gawan and puja events with traditional decor, pandit coordination, and complete setup',
+      hi: 'Gawan aur puja events ke liye traditional decor, pandit coordination, aur complete setup'
+    },
+    iconName: 'FireIcon',
+    stats: { en: '60+ Events', hi: '60+ Events' },
+    color: 'text-amber-600',
+    bgColor: 'bg-amber-500/10'
   }
 ]
 
@@ -69,7 +93,9 @@ const serviceLinks: Record<string, string> = {
   'service_corporate': '/corporate-events',
   'service_wedding': '/weddings',
   'service_birthday': '/birthday-parties',
-  'service_social': '/kitty-party'
+  'service_social': '/kitty-party',
+  'service_education': '/education-events',
+  'service_rituals': '/rituals-events'
 }
 
 export default function ServicesSection() {
@@ -105,7 +131,7 @@ export default function ServicesSection() {
         </div>
 
         {/* Bento Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 auto-rows-min">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-min">
           {services.map((service, index) => (
             <Link
               key={service.id}

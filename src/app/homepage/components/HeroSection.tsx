@@ -1,11 +1,12 @@
 'use client';
 import AppImage from '@/components/ui/AppImage';
-import Link from 'next/link';
 import { useLanguage } from '@/lib/i18n';
 import { useSiteContent } from '@/lib/site-content';
+import { useRouter } from 'next/navigation';
 
 export default function HeroSection() {
   const { t } = useLanguage();
+  const router = useRouter();
   const content = useSiteContent(['hero_badge', 'hero_title', 'hero_subtitle']);
   const badgeText = content.hero_badge || t('hero.service_areas', 'Delhi, Greater Noida, Varanasi');
   const heroTitle =
@@ -32,10 +33,21 @@ export default function HeroSection() {
     }
   };
 
+  const scrollToTestimonials = () => {
+    const testimonialsSection = document.getElementById('testimonials');
+    if (testimonialsSection) {
+      testimonialsSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const goTo = (path: string) => {
+    router.push(path);
+  };
+
   return (
-    <section className="relative w-full h-screen overflow-hidden">
+    <section className="relative w-full min-h-screen overflow-hidden isolate">
       {/* Background Image */}
-      <div className="absolute inset-0 animate-fade">
+      <div className="absolute inset-0 z-0 animate-fade pointer-events-none">
         <AppImage
           src="https://img.rocket.new/generatedImages/rocket_gen_img_11334a259-1766988518820.png"
           alt="Elegant wedding venue with golden lighting and floral decorations"
@@ -45,41 +57,76 @@ export default function HeroSection() {
       </div>
 
       {/* Top Badges */}
-      <nav className="absolute top-0 left-0 right-0 z-50 px-6 md:px-10 py-8 flex justify-between items-start animate-enter delay-500">
+      <nav className="absolute top-0 left-0 right-0 z-50 px-6 md:px-10 py-8 flex flex-wrap justify-between items-start gap-3 md:gap-4 animate-enter delay-500">
         <div className="flex items-center gap-3">
-          <span className="px-5 py-2.5 rounded-full glass-panel text-white text-sm font-medium tracking-wide font-geist flex items-center gap-2 cursor-hover">
+          <button
+            type="button"
+            onClick={scrollToForm}
+            className="px-5 py-2.5 rounded-full glass-panel text-white text-sm font-medium tracking-wide font-geist flex items-center gap-2 cursor-pointer cursor-hover hover:bg-white/20 transition-colors"
+            aria-label="See service areas and contact form"
+          >
             <span className="w-2 h-2 rounded-full bg-success"></span>
             {badgeText}
-          </span>
+          </button>
         </div>
 
         <div className="hidden md:flex items-center gap-3">
-          <span className="px-5 py-2.5 rounded-full glass-panel text-white text-sm font-medium tracking-wide font-geist cursor-hover">
+          <button
+            type="button"
+            onClick={scrollToGallery}
+            className="px-5 py-2.5 rounded-full glass-panel text-white text-sm font-medium tracking-wide font-geist cursor-pointer cursor-hover hover:bg-white/20 transition-colors"
+            aria-label="View events executed in portfolio"
+          >
             {t('hero.events_executed', '500+ Events Executed')}
-          </span>
-          <span className="px-5 py-2.5 rounded-full glass-panel text-white text-sm font-medium tracking-wide font-geist flex items-center gap-2 cursor-hover">
+          </button>
+          <button
+            type="button"
+            onClick={scrollToTestimonials}
+            className="px-5 py-2.5 rounded-full glass-panel text-white text-sm font-medium tracking-wide font-geist flex items-center gap-2 cursor-pointer cursor-hover hover:bg-white/20 transition-colors"
+            aria-label="See client ratings and testimonials"
+          >
             <span className="text-primary">★</span> {t('hero.rating', '4.9 Client Rating')}
-          </span>
+          </button>
         </div>
       </nav>
 
       {/* Main Content */}
-      <div className="relative w-full h-full flex flex-col justify-end pb-12 md:pb-20 px-8 md:px-16 pointer-events-none">
-        <div className="pointer-events-auto max-w-5xl">
+      <div className="relative z-10 w-full min-h-screen flex flex-col justify-end pb-12 md:pb-20 px-8 md:px-16 pt-28 md:pt-32">
+        <div className="max-w-5xl">
           {/* Category Pills */}
-          <div className="flex flex-wrap items-center gap-3 mb-6 animate-enter delay-100">
-            <Link href="/weddings" className="flex items-center gap-2 bg-white text-foreground px-4 py-1.5 rounded-full text-sm font-bold font-geist shadow-lg cursor-hover hover:bg-primary hover:text-primary-foreground transition-colors">
+          <div className="relative z-20 pointer-events-auto flex flex-wrap items-center gap-3 mb-6 animate-enter delay-100">
+            <button
+              type="button"
+              onClick={() => goTo('/weddings')}
+              className="relative z-20 flex items-center gap-2 bg-white text-foreground px-4 py-1.5 rounded-full text-sm font-bold font-geist shadow-lg cursor-pointer cursor-hover hover:bg-primary hover:text-primary-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 pointer-events-auto"
+              aria-label="Open weddings page"
+            >
               Weddings
-            </Link>
-            <Link href="/corporate-events" className="flex items-center gap-2 glass-panel text-white px-4 py-1.5 rounded-full text-sm font-medium font-geist cursor-hover hover:bg-white/20 transition-colors">
+            </button>
+            <button
+              type="button"
+              onClick={() => goTo('/corporate-events')}
+              className="relative z-20 flex items-center gap-2 glass-panel text-white px-4 py-1.5 rounded-full text-sm font-medium font-geist cursor-pointer cursor-hover hover:bg-white/20 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 pointer-events-auto"
+              aria-label="Open corporate events page"
+            >
               Corporate Events
-            </Link>
-            <Link href="/birthday-parties" className="flex items-center gap-2 glass-panel text-white px-4 py-1.5 rounded-full text-sm font-medium font-geist cursor-hover hover:bg-white/20 transition-colors">
+            </button>
+            <button
+              type="button"
+              onClick={() => goTo('/birthday-parties')}
+              className="relative z-20 flex items-center gap-2 glass-panel text-white px-4 py-1.5 rounded-full text-sm font-medium font-geist cursor-pointer cursor-hover hover:bg-white/20 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 pointer-events-auto"
+              aria-label="Open birthday parties page"
+            >
               Birthday Parties
-            </Link>
-            <Link href="/kitty-party" className="flex items-center gap-2 glass-panel text-white px-4 py-1.5 rounded-full text-sm font-medium font-geist cursor-hover hover:bg-white/20 transition-colors">
+            </button>
+            <button
+              type="button"
+              onClick={() => goTo('/kitty-party')}
+              className="relative z-20 flex items-center gap-2 glass-panel text-white px-4 py-1.5 rounded-full text-sm font-medium font-geist cursor-pointer cursor-hover hover:bg-white/20 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 pointer-events-auto"
+              aria-label="Open social gatherings page"
+            >
               Social Gatherings
-            </Link>
+            </button>
           </div>
 
           <h1 className="text-5xl md:text-8xl font-medium text-white tracking-tight font-jakarta mb-6 leading-[1.05] drop-shadow-xl animate-enter delay-200">

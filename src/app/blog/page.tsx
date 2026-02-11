@@ -1,21 +1,16 @@
 import Link from 'next/link';
 import { cookies } from 'next/headers';
+import { buildPageMetadata } from '@/lib/seo-metadata';
 import { createServerClient } from '@/lib/supabase/server';
 
 export async function generateMetadata() {
-  const lang = cookies().get('lang')?.value === 'hi' ? 'hi' : 'en';
-  const supabase = createServerClient();
-  const { data } = await supabase
-    .from('seo_pages')
-    .select('title, description')
-    .eq('page', 'blog')
-    .eq('lang', lang)
-    .maybeSingle();
-
-  return {
-    title: data?.title || 'Blog | VedicUtsav',
-    description: data?.description || 'Latest updates, event tips, and celebration ideas from VedicUtsav.'
-  };
+  return buildPageMetadata({
+    page: 'blog',
+    path: '/blog',
+    title: 'Blog | VaidikUtsav',
+    description: 'Latest updates, event tips, and celebration ideas from VaidikUtsav.',
+    image: 'https://img.rocket.new/generatedImages/rocket_gen_img_11334a259-1766988518820.png',
+  });
 }
 
 export default async function BlogPage() {
@@ -28,7 +23,7 @@ export default async function BlogPage() {
     .eq('lang', lang)
     .order('created_at', { ascending: false });
 
-  const heading = lang === 'hi' ? 'VedicUtsav Blog' : 'VedicUtsav Blog';
+  const heading = lang === 'hi' ? 'VaidikUtsav Blog' : 'VaidikUtsav Blog';
   const subheading =
     lang === 'hi'
       ? 'Insights, tips, aur ideas for unforgettable celebrations.'
@@ -69,3 +64,4 @@ export default async function BlogPage() {
     </main>
   );
 }
+

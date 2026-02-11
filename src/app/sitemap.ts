@@ -3,11 +3,14 @@ import { createServerClient } from '@/lib/supabase/server';
 import { getBaseUrl } from '@/lib/site-url';
 
 const STATIC_PATHS = [
+  '/',
   '/homepage',
   '/weddings',
   '/birthday-parties',
   '/kitty-party',
   '/corporate-events',
+  '/education-events',
+  '/rituals-events',
   '/blog',
 ];
 

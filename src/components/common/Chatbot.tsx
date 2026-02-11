@@ -21,7 +21,7 @@ export default function Chatbot() {
     {
       id: 'welcome',
       role: 'assistant',
-      text: 'Hello. I am the VedicUtsav assistant. We plan events in Delhi, Greater Noida, and Varanasi. Please share your event type and preferred date.'
+      text: 'Hello. I am the VaidikUtsav assistant. We plan events in Delhi, Greater Noida, and Varanasi. Please share your event type and preferred date.'
     }
   ]);
   const [input, setInput] = useState('');
@@ -103,7 +103,7 @@ export default function Chatbot() {
         <div className="w-[320px] sm:w-[360px] h-[520px] max-h-[70vh] bg-card/95 backdrop-blur-xl border border-border rounded-2xl shadow-2xl overflow-hidden">
           <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-white/70">
             <div>
-              <p className="text-sm font-semibold text-foreground">VedicUtsav Assistant</p>
+              <p className="text-sm font-semibold text-foreground">VaidikUtsav Assistant</p>
               <p className="text-xs text-muted-foreground">Powered by Gemini</p>
             </div>
             <button
@@ -217,3 +217,4 @@ export default function Chatbot() {
     </div>
   );
 }
+

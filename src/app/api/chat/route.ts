@@ -86,7 +86,7 @@ export async function POST(request: Request) {
     });
 
     const knowledgeBase = [
-      'Company: VedicUtsav event planning.',
+      'Company: VaidikUtsav event planning.',
       'Service areas: Delhi, Greater Noida, Varanasi only.',
       'Services: Weddings, Corporate Events, Birthday Parties, Kitty Parties and Social Events.',
       'Process: Free consultation (30 minutes), Custom proposal within 48 hours, Vendor coordination, Flawless execution on event day.',
@@ -109,7 +109,7 @@ export async function POST(request: Request) {
       parts: [
         {
           text: [
-            'You are the VedicUtsav event-planning assistant.',
+            'You are the VaidikUtsav event-planning assistant.',
             'You help clients in Delhi, Greater Noida, and Varanasi only.',
             'Ask concise questions to gather event type, date, guest count, budget, and venue preferences.',
             'Use formal, polite English.',
@@ -167,3 +167,4 @@ export async function POST(request: Request) {
     return NextResponse.json({ reply: fallback, source: 'fallback' });
   }
 }
+

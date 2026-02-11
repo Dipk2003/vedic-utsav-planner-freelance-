@@ -7,15 +7,9 @@ import ProcessSection from './components/ProcessSection';
 import TestimonialsSection from './components/TestimonialsSection';
 import ContactFormSection from './components/ContactFormSection';
 import Footer from '@/components/common/Footer';
-import { useSeo } from '@/lib/seo';
 
 
 export default function Homepage() {
-  useSeo(
-    'homepage',
-    'Event Planner in Delhi, Greater Noida & Varanasi | VedicUtsav',
-    'VedicUtsav is an event planner in Delhi, Greater Noida, and Varanasi for weddings, corporate events, birthdays, and social celebrations.'
-  );
   useEffect(() => {
     const reveals = document.querySelectorAll('.reveal')
     if (!reveals.length) return
@@ -46,3 +40,4 @@ export default function Homepage() {
     </main>
   )
 }
+

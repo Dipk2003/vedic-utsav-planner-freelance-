@@ -13,7 +13,7 @@ export default function Footer() {
         <div className="flex flex-col md:flex-row justify-between items-center gap-8 mb-8">
           {/* Logo and Tagline */}
           <div className="text-center md:text-left">
-            <h3 className="text-2xl font-bold font-jakarta text-primary mb-2">VedicUtsav</h3>
+            <h3 className="text-2xl font-bold font-jakarta text-primary mb-2">VaidikUtsav</h3>
             <p className="text-sm text-white/70 font-geist">
               {t('footer.tagline', 'Creating unforgettable moments in Delhi, Greater Noida, and Varanasi')}
             </p>
@@ -41,7 +41,7 @@ export default function Footer() {
           {/* Social Links */}
           <div className="flex items-center gap-4">
             <a
-              href="https://instagram.com/vedicutsav"
+              href="https://instagram.com/VaidikUtsav"
               target="_blank"
               rel="noopener noreferrer"
               className="w-10 h-10 rounded-full glass-panel-dark flex items-center justify-center hover:bg-white/10 transition-all cursor-hover"
@@ -50,7 +50,7 @@ export default function Footer() {
               <Icon name="CameraIcon" className="w-5 h-5 text-white" />
             </a>
             <a
-              href="https://facebook.com/vedicutsav"
+              href="https://facebook.com/VaidikUtsav"
               target="_blank"
               rel="noopener noreferrer"
               className="w-10 h-10 rounded-full glass-panel-dark flex items-center justify-center hover:bg-white/10 transition-all cursor-hover"
@@ -73,7 +73,7 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="pt-8 border-t border-white/10">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-white/60 font-geist">
-            <p>© {currentYear} VedicUtsav. All rights reserved.</p>
+            <p>© {currentYear} VaidikUtsav. All rights reserved.</p>
             <div className="flex gap-6">
               <a href="#privacy" className="hover:text-white transition-colors cursor-hover">
                 Privacy Policy
@@ -88,3 +88,4 @@ export default function Footer() {
     </footer>
   )
 }
+
